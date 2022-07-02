@@ -1,0 +1,38 @@
+version: '3.6'
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - 8000:8000 
+    volumes:
+      - ./backend:/src/server/app
+    working_dir: /src/server/app
+    env_file:
+      - ./.env
+    depends_on:
+        - postgres
+
+  postgres:
+    image: postgres:12
+    restart: always
+    ports:
+    - "5432:5432"
+    volumes:
+    - db_data:/var/lib/postgresql/data
+    env_file:
+      ./.env
+
+  graphql-engine:
+    image: hasura/graphql-engine:v2.2.0
+    ports:
+    - "8080:8080"
+    depends_on:
+    - "postgres"
+    restart: always
+    env_file:
+      ./.env
+volumes:
+  db_data:
